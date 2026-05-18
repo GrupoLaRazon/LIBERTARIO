@@ -1,0 +1,64 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getCategoryLabel } from '@/data/categories';
+import type { Category } from '@/data/categories';
+
+interface Props {
+  article: CollectionEntry<'articulos'>;
+  compact?: boolean;
+  index?: number;
+}
+
+const { article, compact = false, index } = Astro.props;
+const { title, description, pubDate, category, author } = article.data;
+const href = `/articulo/${article.slug}/`;
+const label = index ? `Noticia ${index}` : null;
+---
+
+<article
+  class:list={[
+    'group flex flex-col border-2 border-black bg-white transition-shadow hover:shadow-md',
+    compact && 'flex-1',
+  ]}
+>
+  <a href={href} class:list={['flex flex-1 flex-col', compact ? 'p-4' : 'p-5']}>
+    <div class="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
+      {label && <span class="text-libertario-blue">{label}</span>}
+      {label && <span class="text-gray-300">·</span>}
+      <span class="text-libertario-blue">{getCategoryLabel(category as Category)}</span>
+      {!compact && (
+        <>
+          <span class="text-gray-300">·</span>
+          <time datetime={pubDate.toISOString()} class="text-libertario-muted">
+            {
+              pubDate.toLocaleDateString('es-PE', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+              })
+            }
+          </time>
+        </>
+      )}
+    </div>
+
+    <h2
+      class:list={[
+        'font-serif font-bold leading-snug text-libertario-dark transition-colors group-hover:text-libertario-blue',
+        compact ? 'text-base' : 'text-lg',
+      ]}
+    >
+      {title}
+    </h2>
+
+    {
+      !compact && (
+        <p class="mt-2 flex-1 text-sm leading-relaxed text-libertario-muted line-clamp-3">
+          {description}
+        </p>
+      )
+    }
+
+    {!compact && <p class="mt-3 text-xs text-libertario-muted">Por {author}</p>}
+  </a>
+</article>

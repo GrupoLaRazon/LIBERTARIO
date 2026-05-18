@@ -1,0 +1,33 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ArticleCard from '@/components/ArticleCard.astro';
+import { categories, categoryMeta, type Category } from '@/data/categories';
+import { getArticlesByCategory, type Article } from '@/utils/articles';
+
+export function getStaticPaths() {
+  return categories.map((category) => ({ params: { category } }));
+}
+
+const { category } = Astro.params as { category: Category };
+const meta = categoryMeta[category];
+const articles = await getArticlesByCategory(category);
+---
+
+<BaseLayout title={meta.label} description={meta.description}>
+  <header class="mb-8">
+    <h1 class="font-serif text-4xl font-bold text-libertario-dark">{meta.label}</h1>
+    <p class="mt-2 text-libertario-muted">{meta.description}</p>
+  </header>
+
+  {
+    articles.length > 0 ? (
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {articles.map((article: Article) => (
+          <ArticleCard article={article} />
+        ))}
+      </div>
+    ) : (
+      <p class="text-libertario-muted">No hay artículos publicados en esta sección.</p>
+    )
+  }
+</BaseLayout>

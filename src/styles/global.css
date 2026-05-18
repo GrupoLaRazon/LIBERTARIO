@@ -1,0 +1,55 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-serif: 'Georgia', 'Times New Roman', serif;
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-logo: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --color-libertario-blue: #2560a8;
+  --color-libertario-blue-dark: #1a4a82;
+  --color-libertario-dark: #1a1a1a;
+  --color-libertario-muted: #6b7280;
+  --color-libertario-cream: #f5f6f8;
+}
+
+@layer base {
+  html {
+    @apply scroll-smooth antialiased;
+  }
+
+  body {
+    @apply bg-libertario-cream font-sans text-libertario-dark;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-serif;
+  }
+}
+
+@layer components {
+  .article-content {
+    @apply text-lg leading-relaxed text-libertario-dark;
+
+    & h2 {
+      @apply mt-10 mb-4 font-serif text-2xl font-bold;
+    }
+
+    & p {
+      @apply mb-4;
+    }
+
+    & a {
+      @apply text-libertario-blue underline underline-offset-2 hover:no-underline;
+    }
+
+    & ul {
+      @apply mb-4 list-disc pl-6;
+    }
+  }
+
+  .section-title {
+    @apply mb-6 border-b-2 border-libertario-blue pb-2 font-sans text-sm font-bold uppercase tracking-widest text-libertario-blue;
+  }
+}

@@ -1,0 +1,37 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import HeroArticle from '@/components/HeroArticle.astro';
+import ArticleCard from '@/components/ArticleCard.astro';
+import { siteConfig } from '@/data/navigation';
+import { getPublishedArticles, getFeaturedArticle } from '@/utils/articles';
+
+const featured = await getFeaturedArticle();
+const articles = await getPublishedArticles();
+const rest = articles.filter((a) => a.slug !== featured?.slug);
+const sidebar = rest.slice(0, 3);
+const moreNews = rest.slice(3, 9);
+---
+
+<BaseLayout title={siteConfig.name} description={siteConfig.description}>
+  <section aria-label="Portada principal" class="grid gap-4 lg:grid-cols-3 lg:gap-6">
+    <div class="lg:col-span-2">
+      {featured && <HeroArticle article={featured} />}
+    </div>
+    <aside class="flex flex-col gap-4" aria-label="Noticias destacadas">
+      {sidebar.map((article, i) => (
+        <ArticleCard article={article} compact index={i + 2} />
+      ))}
+    </aside>
+  </section>
+
+  {
+    moreNews.length > 0 && (
+      <section class="mt-10" aria-label="Más noticias">
+        <h2 class="section-title">Más noticias</h2>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {moreNews.map((article) => <ArticleCard article={article} />)}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

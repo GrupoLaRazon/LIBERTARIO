@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://libertario.pe/sitemap-index.xml

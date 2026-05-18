@@ -1,0 +1,51 @@
+---
+import { mainNav, siteConfig } from '@/data/navigation';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-16 border-t-2 border-black bg-libertario-blue-dark text-gray-200">
+  <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <div class="grid gap-10 md:grid-cols-3">
+      <div>
+        <img
+          src={siteConfig.logo}
+          alt={siteConfig.name}
+          class="h-10 w-auto border border-white/30"
+          width="200"
+          height="45"
+        />
+        <p class="mt-3 text-sm text-blue-100">{siteConfig.tagline}</p>
+      </div>
+
+      <div>
+        <h2 class="text-xs font-semibold tracking-widest text-white uppercase">Secciones</h2>
+        <ul class="mt-4 space-y-2 text-sm">
+          {
+            mainNav.map((item) => (
+              <li>
+                <a href={item.href} class="transition-colors hover:text-white">
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="text-xs font-semibold tracking-widest text-white uppercase">Contacto</h2>
+        <p class="mt-4 text-sm text-blue-100">
+          <a href={`mailto:${siteConfig.email}`} class="transition-colors hover:text-white">
+            {siteConfig.email}
+          </a>
+        </p>
+        <p class="mt-2 text-sm text-blue-100">Lima, Perú</p>
+      </div>
+    </div>
+
+    <div class="mt-10 border-t border-white/20 pt-6 text-center text-xs text-blue-200">
+      <p>© {year} {siteConfig.name}. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</footer>
