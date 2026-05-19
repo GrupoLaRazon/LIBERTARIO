@@ -1,0 +1,278 @@
+---
+// src/pages/buscar.astro
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getPublishedArticles } from '@/utils/articles';
+import { getCategoryLabel } from '@/data/categories';
+import type { Category } from '@/data/categories';
+
+const query = Astro.url.searchParams.get('q')?.trim() ?? '';
+
+let resultados: Awaited<ReturnType<typeof getPublishedArticles>> = [];
+
+if (query.length > 0) {
+  const todos = await getPublishedArticles();
+  const q = query.toLowerCase();
+  resultados = todos.filter((a) => {
+    return (
+      a.data.title.toLowerCase().includes(q) ||
+      a.data.description?.toLowerCase().includes(q) ||
+      a.data.category.toLowerCase().includes(q) ||
+      a.data.author?.toLowerCase().includes(q)
+    );
+  });
+}
+---
+
+<BaseLayout
+  title={query ? `Búsqueda: "${query}" — Libertario` : 'Buscar — Libertario'}
+  description="Busca noticias en Libertario, el periódico digital del Perú."
+>
+  <div class="buscar-page">
+    <!-- Cabecera de búsqueda -->
+    <div class="buscar-header">
+      <h1 class="buscar-titulo">
+        {query ? `Resultados para "${query}"` : 'Buscar noticias'}
+      </h1>
+      {query && (
+        <p class="buscar-count">
+          {resultados.length === 0
+            ? 'No se encontraron resultados'
+            : resultados.length === 1
+            ? '1 resultado encontrado'
+            : `${resultados.length} resultados encontrados`}
+        </p>
+      )}
+    </div>
+
+    <!-- Formulario de búsqueda en la página -->
+    <form action="/buscar/" method="get" class="buscar-form" role="search">
+      <input
+        type="search"
+        name="q"
+        value={query}
+        placeholder="Escribe tu búsqueda..."
+        aria-label="Buscar en Libertario"
+        class="buscar-input"
+        autofocus
+      />
+      <button type="submit" class="buscar-btn">Buscar</button>
+    </form>
+
+    <!-- Resultados -->
+    {query && resultados.length === 0 && (
+      <div class="sin-resultados">
+        <p>No encontramos artículos que coincidan con <strong>"{query}"</strong>.</p>
+        <p>Intenta con otras palabras clave o explora nuestras secciones.</p>
+        <div class="sugerencias">
+          <a href="/titulares/">Titulares</a>
+          <a href="/policiales/">Policiales</a>
+          <a href="/actualidad/">Actualidad</a>
+          <a href="/mundo/">Mundo</a>
+        </div>
+      </div>
+    )}
+
+    {resultados.length > 0 && (
+      <div class="resultados-grid">
+        {resultados.map((article) => (
+          <a href={`/articulo/${article.slug}/`} class="resultado-card">
+            {article.data.image ? (
+              <img
+                src={article.data.image.src}
+                alt={article.data.image.alt}
+                class="resultado-img"
+                loading="lazy"
+              />
+            ) : (
+              <div class="resultado-img-ph" aria-hidden="true">Sin imagen</div>
+            )}
+            <div class="resultado-body">
+              <span class="resultado-cat">
+                {getCategoryLabel(article.data.category as Category)}
+              </span>
+              <h2 class="resultado-title">{article.data.title}</h2>
+              {article.data.description && (
+                <p class="resultado-desc">{article.data.description}</p>
+              )}
+              <div class="resultado-meta">
+                <span>Por {article.data.author}</span>
+                <span class="sep">·</span>
+                <time datetime={article.data.pubDate.toISOString()}>
+                  {article.data.pubDate.toLocaleDateString('es-PE', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
+                </time>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .buscar-page { max-width: 860px; margin: 0 auto; }
+
+  .buscar-header { margin-bottom: 20px; border-bottom: 2px solid #1a3f8f; padding-bottom: 12px; }
+
+  .buscar-titulo {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #111;
+    font-family: Georgia, serif;
+    margin-bottom: 4px;
+  }
+
+  .buscar-count { font-size: 0.85rem; color: #666; }
+
+  /* Formulario */
+  .buscar-form {
+    display: flex;
+    gap: 0;
+    margin-bottom: 28px;
+    border: 2px solid #1a3f8f;
+    overflow: hidden;
+    border-radius: 2px;
+  }
+
+  .buscar-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 10px 16px;
+    font-size: 1rem;
+    color: #111;
+    background: #fff;
+  }
+
+  .buscar-btn {
+    background: #1a3f8f;
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .buscar-btn:hover { background: #152f6e; }
+
+  /* Sin resultados */
+  .sin-resultados {
+    text-align: center;
+    padding: 40px 20px;
+    color: #555;
+  }
+
+  .sin-resultados p { margin-bottom: 8px; font-size: 0.95rem; }
+
+  .sugerencias {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .sugerencias a {
+    background: #1a3f8f;
+    color: #fff;
+    padding: 6px 16px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: background 0.15s;
+  }
+
+  .sugerencias a:hover { background: #152f6e; }
+
+  /* Resultados */
+  .resultados-grid { display: flex; flex-direction: column; gap: 0; }
+
+  .resultado-card {
+    display: flex;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+
+  .resultado-card:last-child { border-bottom: none; }
+  .resultado-card:hover { background: #f5f7ff; padding-left: 8px; }
+
+  .resultado-img {
+    width: 140px;
+    height: 90px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid #eee;
+  }
+
+  .resultado-img-ph {
+    width: 140px;
+    height: 90px;
+    flex-shrink: 0;
+    background: repeating-linear-gradient(45deg, #ddd, #ddd 4px, #eee 4px, #eee 12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: #aaa;
+  }
+
+  .resultado-body { flex: 1; }
+
+  .resultado-cat {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #1a3f8f;
+    margin-bottom: 4px;
+  }
+
+  .resultado-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111;
+    line-height: 1.35;
+    margin-bottom: 6px;
+    font-family: Georgia, serif;
+  }
+
+  .resultado-desc {
+    font-size: 0.82rem;
+    color: #555;
+    line-height: 1.45;
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .resultado-meta {
+    font-size: 0.72rem;
+    color: #888;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .sep { color: #ccc; }
+
+  @media (max-width: 600px) {
+    .resultado-img, .resultado-img-ph { width: 90px; height: 65px; }
+    .resultado-title { font-size: 0.9rem; }
+  }
+</style>
