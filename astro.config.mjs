@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://libertario.pe',
+  site: 'https://diariolibertario.pe',
   integrations: [sitemap()],
   compressHTML: true,
   build: {
