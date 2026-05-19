@@ -7,7 +7,7 @@ author: "Redacción Libertario"
 featured: false
 draft: false
 image:
-  src: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Medicamentos.jpg/1280px-Medicamentos.jpg"
+  src: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1200&q=80"
   alt: "Medicamentos y fármacos en una farmacia"
 ---
 

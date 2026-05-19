@@ -7,7 +7,7 @@ author: "Redacción Libertario"
 featured: true
 draft: false
 image:
-  src: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Flag_of_Peru.svg/1200px-Flag_of_Peru.svg.png"
+  src: "https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?w=1200&q=80"
   alt: "Bandera del Perú - elecciones segunda vuelta 2026"
 ---
 

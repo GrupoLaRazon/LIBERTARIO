@@ -7,7 +7,7 @@ author: "Redacción Libertario"
 featured: false
 draft: false
 image:
-  src: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Peru_Congreso.jpg/1280px-Peru_Congreso.jpg"
+  src: "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=1200&q=80"
   alt: "Congreso de la República del Perú"
 ---
 

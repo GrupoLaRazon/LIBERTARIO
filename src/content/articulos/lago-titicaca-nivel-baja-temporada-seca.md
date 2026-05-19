@@ -7,7 +7,7 @@ author: "Redacción Libertario"
 featured: false
 draft: false
 image:
-  src: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Lake_Titicaca_from_Bolivia.jpg/1280px-Lake_Titicaca_from_Bolivia.jpg"
+  src: "https://images.unsplash.com/photo-1531761535209-180857e963b9?w=1200&q=80"
   alt: "Vista del lago Titicaca desde la orilla peruana"
 ---
 

@@ -7,7 +7,7 @@ author: "Redacción Libertario"
 featured: false
 draft: false
 image:
-  src: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/SUNAT_logo.svg/1200px-SUNAT_logo.svg.png"
+  src: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&q=80"
   alt: "Logo de la SUNAT - Superintendencia Nacional de Aduanas y Administración Tributaria"
 ---
 

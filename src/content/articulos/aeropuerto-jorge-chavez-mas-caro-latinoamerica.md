@@ -7,7 +7,7 @@ author: "Redacción Libertario"
 featured: false
 draft: false
 image:
-  src: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Aeropuerto_Jorge_Chavez.jpg/1280px-Aeropuerto_Jorge_Chavez.jpg"
+  src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1200&q=80"
   alt: "Aeropuerto Internacional Jorge Chávez de Lima, Perú"
 ---
 

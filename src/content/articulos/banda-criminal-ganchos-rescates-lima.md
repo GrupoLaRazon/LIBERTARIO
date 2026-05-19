@@ -7,7 +7,7 @@ author: "Redacción Libertario"
 featured: false
 draft: false
 image:
-  src: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/PNP_operativo.jpg/1280px-PNP_operativo.jpg"
+  src: "https://images.unsplash.com/photo-1453873531674-2151bcd01707?w=1200&q=80"
   alt: "Operativo policial de la PNP en Lima"
 ---
 

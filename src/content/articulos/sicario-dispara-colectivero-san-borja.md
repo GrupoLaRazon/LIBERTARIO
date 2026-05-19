@@ -7,7 +7,7 @@ author: "Redacción Libertario"
 featured: false
 draft: false
 image:
-  src: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Policia_Nacional_del_Peru.jpg/1280px-Policia_Nacional_del_Peru.jpg"
+  src: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80"
   alt: "Policía Nacional del Perú en operativo"
 ---
 

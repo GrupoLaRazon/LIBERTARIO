@@ -7,7 +7,7 @@ author: "Redacción Libertario"
 featured: false
 draft: false
 image:
-  src: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Metropolitano_de_Lima_bus.jpg/1280px-Metropolitano_de_Lima_bus.jpg"
+  src: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200&q=80"
   alt: "Bus del Metropolitano de Lima"
 ---
 

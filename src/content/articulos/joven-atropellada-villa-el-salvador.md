@@ -7,7 +7,7 @@ author: "Redacción Libertario"
 featured: false
 draft: false
 image:
-  src: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Accidente_de_transito.jpg/1280px-Accidente_de_transito.jpg"
+  src: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80"
   alt: "Escena de accidente de tránsito en Lima"
 ---
 
