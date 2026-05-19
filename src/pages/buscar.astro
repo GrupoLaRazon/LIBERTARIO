@@ -1,127 +1,165 @@
-
-Copiar
-
 ---
 // src/pages/buscar.astro
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getPublishedArticles } from '@/utils/articles';
 import { getCategoryLabel } from '@/data/categories';
 import type { Category } from '@/data/categories';
- 
-// Astro SSR: leer el query de la URL
-const query = (Astro.url.searchParams.get('q') ?? '').trim();
- 
-let resultados: Awaited<ReturnType<typeof getPublishedArticles>> = [];
- 
-if (query.length > 0) {
-  const todos = await getPublishedArticles();
-  const q = query.toLowerCase();
-  resultados = todos.filter((a) =>
-    a.data.title.toLowerCase().includes(q) ||
-    (a.data.description ?? '').toLowerCase().includes(q) ||
-    a.data.category.toLowerCase().includes(q) ||
-    (a.data.author ?? '').toLowerCase().includes(q)
-  );
-}
+
+// Traer TODOS los artículos en build time y pasarlos al cliente como JSON
+const todos = await getPublishedArticles();
+const articulos = todos.map((a) => ({
+  slug: a.slug,
+  title: a.data.title,
+  description: a.data.description ?? '',
+  category: a.data.category,
+  categoryLabel: getCategoryLabel(a.data.category as Category),
+  author: a.data.author ?? '',
+  pubDate: a.data.pubDate.toISOString(),
+  image: a.data.image ?? null,
+}));
 ---
- 
-<BaseLayout
-  title={query ? `"${query}" — Buscar en Libertario` : 'Buscar — Libertario'}
-  description="Busca noticias en Libertario, el periódico digital del Perú."
->
+
+<BaseLayout title="Buscar — Libertario" description="Busca noticias en Libertario, el periódico digital del Perú.">
   <div class="buscar-page">
- 
+
     <div class="buscar-header">
-      <h1 class="buscar-titulo">
-        {query ? `Resultados para "${query}"` : 'Buscar noticias'}
-      </h1>
-      {query && (
-        <p class="buscar-count">
-          {resultados.length === 0
-            ? 'No se encontraron resultados'
-            : resultados.length === 1
-            ? '1 resultado encontrado'
-            : `${resultados.length} resultados encontrados`}
-        </p>
-      )}
+      <h1 class="buscar-titulo" id="buscar-titulo">Buscar noticias</h1>
+      <p class="buscar-count" id="buscar-count"></p>
     </div>
- 
-    <form action="/buscar/" method="get" class="buscar-form" role="search">
+
+    <form class="buscar-form" role="search" id="buscar-form">
       <input
         type="search"
-        name="q"
-        value={query}
+        id="buscar-input"
         placeholder="Escribe tu búsqueda..."
         aria-label="Buscar en Libertario"
         class="buscar-input"
+        autocomplete="off"
       />
       <button type="submit" class="buscar-btn">Buscar</button>
     </form>
- 
-    {query && resultados.length === 0 && (
-      <div class="sin-resultados">
-        <p>No encontramos artículos que coincidan con <strong>"{query}"</strong>.</p>
-        <p>Intenta con otras palabras o explora nuestras secciones:</p>
-        <div class="sugerencias">
-          <a href="/titulares/">Titulares</a>
-          <a href="/policiales/">Policiales</a>
-          <a href="/actualidad/">Actualidad</a>
-          <a href="/mundo/">Mundo</a>
-        </div>
-      </div>
-    )}
- 
-    {resultados.length > 0 && (
+
+    <div id="resultados-container"></div>
+
+  </div>
+</BaseLayout>
+
+<!-- Datos de artículos embebidos para búsqueda client-side -->
+<script define:vars={{ articulos }}>
+  const ARTICULOS = articulos;
+
+  function formatDate(isoString) {
+    return new Date(isoString).toLocaleDateString('es-PE', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    });
+  }
+
+  function renderResultados(query, resultados) {
+    const titulo = document.getElementById('buscar-titulo');
+    const count = document.getElementById('buscar-count');
+    const container = document.getElementById('resultados-container');
+    const input = document.getElementById('buscar-input');
+
+    if (input) input.value = query;
+
+    if (!query) {
+      titulo.textContent = 'Buscar noticias';
+      count.textContent = '';
+      container.innerHTML = '';
+      return;
+    }
+
+    titulo.textContent = `Resultados para "${query}"`;
+
+    if (resultados.length === 0) {
+      count.textContent = 'No se encontraron resultados';
+      container.innerHTML = `
+        <div class="sin-resultados">
+          <p>No encontramos artículos que coincidan con <strong>"${query}"</strong>.</p>
+          <p>Intenta con otras palabras o explora nuestras secciones:</p>
+          <div class="sugerencias">
+            <a href="/titulares/">Titulares</a>
+            <a href="/policiales/">Policiales</a>
+            <a href="/actualidad/">Actualidad</a>
+            <a href="/mundo/">Mundo</a>
+          </div>
+        </div>`;
+      return;
+    }
+
+    count.textContent = resultados.length === 1
+      ? '1 resultado encontrado'
+      : `${resultados.length} resultados encontrados`;
+
+    container.innerHTML = `
       <div class="resultados-grid">
-        {resultados.map((article) => (
-          <a href={`/articulo/${article.slug}/`} class="resultado-card">
-            {article.data.image ? (
-              <img
-                src={article.data.image.src}
-                alt={article.data.image.alt}
-                class="resultado-img"
-                loading="lazy"
-              />
-            ) : (
-              <div class="resultado-img-ph" aria-hidden="true">Sin imagen</div>
-            )}
+        ${resultados.map(a => `
+          <a href="/articulo/${a.slug}/" class="resultado-card">
+            ${a.image
+              ? `<img src="${a.image.src}" alt="${a.image.alt}" class="resultado-img" loading="lazy">`
+              : `<div class="resultado-img-ph" aria-hidden="true">Sin imagen</div>`
+            }
             <div class="resultado-body">
-              <span class="resultado-cat">
-                {getCategoryLabel(article.data.category as Category)}
-              </span>
-              <h2 class="resultado-title">{article.data.title}</h2>
-              {article.data.description && (
-                <p class="resultado-desc">{article.data.description}</p>
-              )}
+              <span class="resultado-cat">${a.categoryLabel}</span>
+              <h2 class="resultado-title">${a.title}</h2>
+              ${a.description ? `<p class="resultado-desc">${a.description}</p>` : ''}
               <div class="resultado-meta">
-                <span>Por {article.data.author}</span>
+                <span>Por ${a.author}</span>
                 <span class="sep">·</span>
-                <time datetime={article.data.pubDate.toISOString()}>
-                  {article.data.pubDate.toLocaleDateString('es-PE', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
-                </time>
+                <time>${formatDate(a.pubDate)}</time>
               </div>
             </div>
           </a>
-        ))}
-      </div>
-    )}
- 
-  </div>
-</BaseLayout>
- 
+        `).join('')}
+      </div>`;
+  }
+
+  function buscar(query) {
+    if (!query.trim()) return renderResultados('', []);
+    const q = query.toLowerCase().trim();
+    const resultados = ARTICULOS.filter(a =>
+      a.title.toLowerCase().includes(q) ||
+      a.description.toLowerCase().includes(q) ||
+      a.category.toLowerCase().includes(q) ||
+      a.author.toLowerCase().includes(q)
+    );
+    renderResultados(query.trim(), resultados);
+
+    // Actualizar URL sin recargar
+    const url = new URL(window.location.href);
+    url.searchParams.set('q', query.trim());
+    window.history.replaceState({}, '', url.toString());
+  }
+
+  // Al cargar: leer ?q= de la URL
+  window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q') ?? '';
+    if (q) buscar(q);
+  });
+
+  // Al enviar el form
+  document.getElementById('buscar-form')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = document.getElementById('buscar-input');
+    buscar(input?.value ?? '');
+  });
+
+  // Búsqueda en tiempo real mientras escribe
+  document.getElementById('buscar-input')?.addEventListener('input', (e) => {
+    buscar(e.target.value);
+  });
+</script>
+
 <style>
   .buscar-page { max-width: 860px; margin: 0 auto; }
- 
+
   .buscar-header {
     margin-bottom: 20px;
     border-bottom: 2px solid #1a3f8f;
     padding-bottom: 12px;
   }
- 
+
   .buscar-titulo {
     font-size: 1.5rem;
     font-weight: 900;
@@ -129,9 +167,9 @@ if (query.length > 0) {
     font-family: Georgia, serif;
     margin-bottom: 4px;
   }
- 
-  .buscar-count { font-size: 0.85rem; color: #666; }
- 
+
+  .buscar-count { font-size: 0.85rem; color: #666; min-height: 1.2em; }
+
   .buscar-form {
     display: flex;
     margin-bottom: 28px;
@@ -139,7 +177,7 @@ if (query.length > 0) {
     overflow: hidden;
     border-radius: 2px;
   }
- 
+
   .buscar-input {
     flex: 1;
     border: none;
@@ -149,7 +187,7 @@ if (query.length > 0) {
     color: #111;
     background: #fff;
   }
- 
+
   .buscar-btn {
     background: #1a3f8f;
     color: #fff;
@@ -162,17 +200,17 @@ if (query.length > 0) {
     cursor: pointer;
     transition: background 0.15s;
   }
- 
+
   .buscar-btn:hover { background: #152f6e; }
- 
+
   .sin-resultados {
     text-align: center;
     padding: 40px 20px;
     color: #555;
   }
- 
+
   .sin-resultados p { margin-bottom: 8px; font-size: 0.95rem; }
- 
+
   .sugerencias {
     display: flex;
     gap: 10px;
@@ -180,7 +218,7 @@ if (query.length > 0) {
     margin-top: 20px;
     flex-wrap: wrap;
   }
- 
+
   .sugerencias a {
     background: #1a3f8f;
     color: #fff;
@@ -191,11 +229,11 @@ if (query.length > 0) {
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
- 
+
   .sugerencias a:hover { background: #152f6e; }
- 
+
   .resultados-grid { display: flex; flex-direction: column; }
- 
+
   .resultado-card {
     display: flex;
     gap: 16px;
@@ -204,10 +242,10 @@ if (query.length > 0) {
     text-decoration: none;
     transition: padding-left 0.15s;
   }
- 
+
   .resultado-card:last-child { border-bottom: none; }
-  .resultado-card:hover { padding-left: 8px; }
- 
+  .resultado-card:hover { padding-left: 8px; background: #f5f7ff; }
+
   .resultado-img {
     width: 140px;
     height: 90px;
@@ -215,7 +253,7 @@ if (query.length > 0) {
     flex-shrink: 0;
     border: 1px solid #eee;
   }
- 
+
   .resultado-img-ph {
     width: 140px;
     height: 90px;
@@ -227,9 +265,9 @@ if (query.length > 0) {
     font-size: 0.7rem;
     color: #aaa;
   }
- 
+
   .resultado-body { flex: 1; }
- 
+
   .resultado-cat {
     display: block;
     font-size: 0.65rem;
@@ -239,7 +277,7 @@ if (query.length > 0) {
     color: #1a3f8f;
     margin-bottom: 4px;
   }
- 
+
   .resultado-title {
     font-size: 1rem;
     font-weight: 700;
@@ -248,7 +286,7 @@ if (query.length > 0) {
     margin-bottom: 6px;
     font-family: Georgia, serif;
   }
- 
+
   .resultado-desc {
     font-size: 0.82rem;
     color: #555;
@@ -259,7 +297,7 @@ if (query.length > 0) {
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
- 
+
   .resultado-meta {
     font-size: 0.72rem;
     color: #888;
@@ -267,9 +305,9 @@ if (query.length > 0) {
     gap: 6px;
     align-items: center;
   }
- 
+
   .sep { color: #ccc; }
- 
+
   @media (max-width: 600px) {
     .resultado-img, .resultado-img-ph { width: 90px; height: 65px; }
     .resultado-title { font-size: 0.9rem; }
